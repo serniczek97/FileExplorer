@@ -46,8 +46,8 @@
             this.moveToLeft = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.leftFileType = new System.Windows.Forms.Label();
-            this.rightFileType = new System.Windows.Forms.Label();
+            this.leftFile = new System.Windows.Forms.Label();
+            this.rightFile = new System.Windows.Forms.Label();
             this.iconList = new System.Windows.Forms.ImageList(this.components);
             this.SuspendLayout();
             // 
@@ -58,7 +58,7 @@
             this.leftBack.Name = "leftBack";
             this.leftBack.Size = new System.Drawing.Size(30, 23);
             this.leftBack.TabIndex = 0;
-            this.leftBack.Text = "<";
+            this.leftBack.Text = "<-";
             this.leftBack.UseVisualStyleBackColor = true;
             this.leftBack.Click += new System.EventHandler(this.leftBack_Click);
             // 
@@ -69,7 +69,7 @@
             this.leftForward.Name = "leftForward";
             this.leftForward.Size = new System.Drawing.Size(30, 23);
             this.leftForward.TabIndex = 1;
-            this.leftForward.Text = ">";
+            this.leftForward.Text = "->";
             this.leftForward.UseVisualStyleBackColor = true;
             this.leftForward.Click += new System.EventHandler(this.leftForward_Click);
             // 
@@ -127,7 +127,7 @@
             this.rightBack.Name = "rightBack";
             this.rightBack.Size = new System.Drawing.Size(30, 23);
             this.rightBack.TabIndex = 7;
-            this.rightBack.Text = "<";
+            this.rightBack.Text = "<-";
             this.rightBack.UseVisualStyleBackColor = true;
             this.rightBack.Click += new System.EventHandler(this.rightBack_Click);
             // 
@@ -137,8 +137,9 @@
             this.rightForward.Name = "rightForward";
             this.rightForward.Size = new System.Drawing.Size(30, 23);
             this.rightForward.TabIndex = 8;
-            this.rightForward.Text = ">";
+            this.rightForward.Text = "->";
             this.rightForward.UseVisualStyleBackColor = true;
+            this.rightForward.Click += new System.EventHandler(this.rightForward_Click);
             // 
             // label2
             // 
@@ -192,41 +193,42 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(12, 421);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(55, 15);
+            this.label3.Size = new System.Drawing.Size(28, 15);
             this.label3.TabIndex = 14;
-            this.label3.Text = "File Type:";
+            this.label3.Text = "File:";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(428, 421);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(55, 15);
+            this.label4.Size = new System.Drawing.Size(28, 15);
             this.label4.TabIndex = 15;
-            this.label4.Text = "File Type:";
+            this.label4.Text = "File:";
             // 
-            // leftFileType
+            // leftFile
             // 
-            this.leftFileType.AutoSize = true;
-            this.leftFileType.Location = new System.Drawing.Point(73, 421);
-            this.leftFileType.Name = "leftFileType";
-            this.leftFileType.Size = new System.Drawing.Size(17, 15);
-            this.leftFileType.TabIndex = 16;
-            this.leftFileType.Text = "--";
+            this.leftFile.AutoSize = true;
+            this.leftFile.Location = new System.Drawing.Point(46, 421);
+            this.leftFile.Name = "leftFile";
+            this.leftFile.Size = new System.Drawing.Size(17, 15);
+            this.leftFile.TabIndex = 16;
+            this.leftFile.Text = "--";
             // 
-            // rightFileType
+            // rightFile
             // 
-            this.rightFileType.AutoSize = true;
-            this.rightFileType.Location = new System.Drawing.Point(489, 421);
-            this.rightFileType.Name = "rightFileType";
-            this.rightFileType.Size = new System.Drawing.Size(17, 15);
-            this.rightFileType.TabIndex = 17;
-            this.rightFileType.Text = "--";
+            this.rightFile.AutoSize = true;
+            this.rightFile.Location = new System.Drawing.Point(462, 421);
+            this.rightFile.Name = "rightFile";
+            this.rightFile.Size = new System.Drawing.Size(17, 15);
+            this.rightFile.TabIndex = 17;
+            this.rightFile.Text = "--";
             // 
             // iconList
             // 
             this.iconList.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
             this.iconList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("iconList.ImageStream")));
+            this.iconList.Tag = "iconList";
             this.iconList.TransparentColor = System.Drawing.Color.Transparent;
             this.iconList.Images.SetKeyName(0, "File_icon_64.png");
             this.iconList.Images.SetKeyName(1, "Folder_icon_64.png");
@@ -237,8 +239,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(800, 451);
-            this.Controls.Add(this.rightFileType);
-            this.Controls.Add(this.leftFileType);
+            this.Controls.Add(this.rightFile);
+            this.Controls.Add(this.leftFile);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.moveToLeft);
@@ -281,8 +283,8 @@
         private Button moveToLeft;
         private Label label3;
         private Label label4;
-        private Label leftFileType;
-        private Label rightFileType;
+        private Label leftFile;
+        private Label rightFile;
         public ImageList iconList;
     }
 }
