@@ -176,7 +176,7 @@ namespace FileExplorer
                 IsFile = false;
             }
         }
-       /* public void ReturnFromGoBack()
+        public void ReturnFromGoBack()
         {
             if(forwardLocations.Count != 0)
             {
@@ -187,6 +187,6 @@ namespace FileExplorer
                 LoadFilesAndDirectories();
                 IsFile = false;
             }
-        }*/
+        }
     }
 }
