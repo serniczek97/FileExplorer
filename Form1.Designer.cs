@@ -139,6 +139,7 @@
             this.rightForward.TabIndex = 8;
             this.rightForward.Text = ">";
             this.rightForward.UseVisualStyleBackColor = true;
+            this.rightForward.Click += new System.EventHandler(this.rightForward_Click);
             // 
             // label2
             // 
@@ -227,6 +228,7 @@
             // 
             this.iconList.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
             this.iconList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("iconList.ImageStream")));
+            this.iconList.Tag = "iconList";
             this.iconList.TransparentColor = System.Drawing.Color.Transparent;
             this.iconList.Images.SetKeyName(0, "File_icon_64.png");
             this.iconList.Images.SetKeyName(1, "Folder_icon_64.png");
