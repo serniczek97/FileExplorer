@@ -13,7 +13,7 @@ namespace FileExplorer
         private string currentlySelectedItemName;
         private bool isFile;
         private ListView viewPanel;
-        private Label fileType;
+        private Label fileName;
         private TextBox location;
         Stack<string> previousLocations;
         Stack<string> forwardLocations;
@@ -38,10 +38,10 @@ namespace FileExplorer
             get { return viewPanel; }
             set { viewPanel = value; }
         }
-        public Label FileType
+        public Label FileName
         {
-            get { return fileType; }
-            set { fileType = value; }
+            get { return fileName; }
+            set { fileName = value; }
         }
         public TextBox Location
         {
@@ -63,7 +63,7 @@ namespace FileExplorer
             this.currentlySelectedItemName = "";
             this.isFile = false;
             this.viewPanel = new ListView();
-            this.fileType = new Label();
+            this.fileName = new Label();
             this.location = new TextBox();
             this.previousLocations = new Stack<string>();
             this.forwardLocations = new Stack<string>();
@@ -80,7 +80,7 @@ namespace FileExplorer
                 {
                     tempFilePath = CurrentLocation + "\\" + CurrentlySelectedItemName;
                     FileInfo fileDetails = new FileInfo(tempFilePath);
-                    FileType.Text = fileDetails.Extension;
+                    FileName.Text = fileDetails.Extension;
                     fileAttr = File.GetAttributes(tempFilePath);
                 }
                 else
@@ -107,7 +107,7 @@ namespace FileExplorer
                 }
                 else
                 {
-                    FileType.Text = this.CurrentlySelectedItemName;
+                    FileName.Text = this.CurrentlySelectedItemName;
                 }
             }
             catch (Exception LFADError)
@@ -126,12 +126,15 @@ namespace FileExplorer
         }
         public void ItemSelectionChanged(ListViewItemSelectionChangedEventArgs e)
         {
+            string tempMainDir;
             try
             {
                 CurrentlySelectedItemName = e.Item.Text;
+                FileName.Text = CurrentlySelectedItemName;
                 if (CurrentLocation.Equals("C:\\") ||
                     CurrentLocation.Equals("D:\\"))
                         CurrentLocation = CurrentLocation.Trim('\\');
+                tempMainDir = CurrentLocation + "\\";
                 FileAttributes fileAttr = File.GetAttributes(CurrentLocation + "\\" + CurrentlySelectedItemName);
                 if ((fileAttr & FileAttributes.Directory) == FileAttributes.Directory)
                 {
@@ -141,6 +144,7 @@ namespace FileExplorer
                 else
                 {
                     IsFile = true;
+                    Location.Text = tempMainDir;
                 }
             }
             catch (Exception ISCerror)
@@ -159,6 +163,7 @@ namespace FileExplorer
         }
         public void OpenButtonAction()
         {
+            if(forwardLocations.Count != 0) forwardLocations.Clear();
             previousLocations.Push(CurrentLocation);
             CurrentLocation = Location.Text;
             LoadFilesAndDirectories();
@@ -172,20 +177,20 @@ namespace FileExplorer
                 CurrentLocation = previousLocations.Pop();
                 if (CurrentLocation == "C:" || CurrentLocation == "D:") CurrentLocation = CurrentLocation + "\\";
                 Location.Text = CurrentLocation;
-                LoadFilesAndDirectories();
                 IsFile = false;
+                LoadFilesAndDirectories();
             }
         }
         public void ReturnFromGoBack()
         {
             if(forwardLocations.Count != 0)
             {
-                CurrentLocation = forwardLocations.Pop();
                 previousLocations.Push(CurrentLocation);
+                CurrentLocation = forwardLocations.Pop();
                 if (CurrentLocation == "C:" || CurrentLocation == "D:") CurrentLocation = CurrentLocation + "\\";
                 Location.Text = CurrentLocation;
-                LoadFilesAndDirectories();
                 IsFile = false;
+                LoadFilesAndDirectories();
             }
         }
     }

@@ -10,8 +10,8 @@ namespace FileExplorer
         public Form1()
         {
             InitializeComponent();
-            InitializePanel(leftPanel, "C:\\", leftView, leftFileType, leftLocation);
-            InitializePanel(rightPanel, "D:\\", rightView, rightFileType, rightLocation);
+            InitializePanel(leftPanel, "C:\\", leftView, leftFile, leftLocation);
+            InitializePanel(rightPanel, "D:\\", rightView, rightFile, rightLocation);
             Panel.IconList = iconList;
             leftLocation.Text = leftPanel.CurrentLocation;
             rightLocation.Text = rightPanel.CurrentLocation;
@@ -22,7 +22,7 @@ namespace FileExplorer
         {
             panel.CurrentLocation = currentLocation;
             panel.ViewPanel = view;
-            panel.FileType = label;
+            panel.FileName = label;
             panel.Location = location;
         }
         private void leftBack_Click(object sender, EventArgs e)
@@ -35,11 +35,11 @@ namespace FileExplorer
         }
         private void leftForward_Click(object sender, EventArgs e)
         {
-          //  leftPanel.ReturnFromGoBack();
+            leftPanel.ReturnFromGoBack();
         }
         private void rightForward_Click(object sender, EventArgs e)
         {
-           // rightPanel.ReturnFromGoBack();
+            rightPanel.ReturnFromGoBack();
         }
         private void leftOpen_Click(object sender, EventArgs e)
         {
@@ -68,7 +68,5 @@ namespace FileExplorer
         {
             rightPanel.OpenButtonAction();
         }
-
-       
     }
 }
