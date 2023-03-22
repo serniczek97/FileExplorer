@@ -177,6 +177,7 @@
             this.moveToRight.TabIndex = 12;
             this.moveToRight.Text = ">>";
             this.moveToRight.UseVisualStyleBackColor = true;
+            this.moveToRight.Click += new System.EventHandler(this.moveToRight_Click);
             // 
             // moveToLeft
             // 
@@ -187,6 +188,7 @@
             this.moveToLeft.TabIndex = 13;
             this.moveToLeft.Text = "<<";
             this.moveToLeft.UseVisualStyleBackColor = true;
+            this.moveToLeft.Click += new System.EventHandler(this.moveToLeft_Click);
             // 
             // label3
             // 

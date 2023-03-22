@@ -13,6 +13,7 @@ namespace FileExplorer
         private string currentLocation;
         private string targetLocation;
         private string currentlySelectedItemName;
+        private bool fromTextBox;
         private ListView viewPanel;
         private Label fileName;
         private TextBox location;
@@ -21,6 +22,15 @@ namespace FileExplorer
         private static ImageList iconList;
         #endregion
         #region properties
+        public string CurrentLocation
+        {
+            get { return currentLocation; }
+        }
+        public bool FromTextBox
+        {
+            get { return fromTextBox; }
+            set { fromTextBox = value; }
+        }
         static public ImageList IconList
         {
             private get { return iconList; }
@@ -41,6 +51,7 @@ namespace FileExplorer
             this.currentLocation = currentLocation;
             this.targetLocation = "";
             this.currentlySelectedItemName = "";
+            this.fromTextBox = false;
             this.viewPanel = viewPanel;
             this.fileName = fileName;
             this.location = location;
@@ -60,6 +71,9 @@ namespace FileExplorer
                 {
                     fileAttr = File.GetAttributes(targetLocation);
                     currentLocation = targetLocation;
+                    if (currentLocation.Equals("C:") ||
+                    currentLocation.Equals("D:"))
+                        currentLocation = currentLocation + "\\";
                 }
                 else
                 {
@@ -139,7 +153,9 @@ namespace FileExplorer
         {
             if(forwardLocations.Count != 0) forwardLocations.Clear();
             previousLocations.Push(currentLocation);
+            if (FromTextBox) targetLocation = location.Text;
             LoadFilesAndDirectories();
+            FromTextBox = false;
         }
         public void GoBack()
         {
@@ -161,6 +177,34 @@ namespace FileExplorer
                 if (currentLocation == "C:" || currentLocation == "D:") currentLocation = currentLocation + "\\";
                 targetLocation = currentLocation;
                 LoadFilesAndDirectories();
+            }
+        }
+        public void MoveToOtherPanel(string target)
+        {
+            try
+            {
+                string checkedFile = currentLocation + "\\" + currentlySelectedItemName;
+                target = target + "\\" + currentlySelectedItemName;
+                FileAttributes fileAttr = File.GetAttributes(checkedFile);
+                if((fileAttr & FileAttributes.Directory) == FileAttributes.Directory)
+                {
+                    Directory.Move(checkedFile, target);
+                }
+                else
+                {
+                    File.Move(checkedFile, target);
+                }
+                targetLocation = "";
+                LoadFilesAndDirectories();
+            }
+            catch(Exception MTOPError)
+            {
+                MessageBox.Show(
+                    MTOPError.Message,
+                    "Error moving a file/directory!",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation
+                );
             }
         }
         #endregion

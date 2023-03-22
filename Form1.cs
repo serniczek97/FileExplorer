@@ -34,11 +34,13 @@ namespace FileExplorer
         }
         private void leftOpen_Click(object sender, EventArgs e)
         {
+            leftPanel.FromTextBox = true;
             leftPanel.OpenButtonAction();
          }
 
         private void rightOpen_Click(object sender, EventArgs e)
         {
+            rightPanel.FromTextBox = true;
             rightPanel.OpenButtonAction();
         }
        
@@ -58,6 +60,18 @@ namespace FileExplorer
         private void rightView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             rightPanel.OpenButtonAction();
+        }
+
+        private void moveToRight_Click(object sender, EventArgs e)
+        {
+            leftPanel.MoveToOtherPanel(rightPanel.CurrentLocation);
+            rightPanel.LoadFilesAndDirectories();
+        }
+
+        private void moveToLeft_Click(object sender, EventArgs e)
+        {
+            rightPanel.MoveToOtherPanel(leftPanel.CurrentLocation);
+            leftPanel.LoadFilesAndDirectories();
         }
     }
 }
