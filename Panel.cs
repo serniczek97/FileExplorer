@@ -89,7 +89,8 @@ namespace FileExplorer
                     fileList = new DirectoryInfo(targetLocation);
                     FileInfo[] files = fileList.GetFiles();
                     DirectoryInfo[] dirs = fileList.GetDirectories();
-                    
+                    DirectoryInfo dirInfo;
+                    FileInfo? fileInfo;
 
                     viewPanel.Items.Clear();
                     
@@ -105,9 +106,34 @@ namespace FileExplorer
                             dir.Attributes.HasFlag(FileAttributes.System)) continue;
                         viewPanel.Items.Add(dir.Name, 1);
                     }
-                    
+                    for (int i = 0; i < viewPanel.Items.Count; i++)
+                    {
+                        fileInfo = files.FirstOrDefault(file => file.Name.Equals(viewPanel.Items[i].Text));
+                        if (fileInfo != null)
+                        {
+                            viewPanel.Items[i].ToolTipText = "Type: " + fileInfo.Extension + "\n" +
+                                                          "Created: " + fileInfo.CreationTimeUtc + "\n" +
+                                                          "Size: " + ChangeSizeFormat(fileInfo.Length);
+                        }
+                        else
+                        {
+                            dirInfo = dirs.First(dir => dir.Name.Equals(viewPanel.Items[i].Text));
+                            viewPanel.Items[i].ToolTipText = "Type: Directory \n" +
+                                                             "Content: " + dirInfo.CreationTime + "\n";
+                        }
+                    }
                     location.Text = currentLocation;
-                    
+                    string ChangeSizeFormat(long size)
+                    {
+                        decimal s = size;
+                        if (s > 1024) s /= 1024;
+                        else return s.ToString("0") + "B";
+                        if(s > 1024) s /= 1024;
+                        else return s.ToString("0") + "KB";
+                        if (s > 1024) s /= 1024;
+                        else return s.ToString("0") + "MB";
+                        return s.ToString("0.00") + "GB";
+                    }
                 }
             }
             catch (Exception LFADError)
