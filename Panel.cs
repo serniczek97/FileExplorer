@@ -9,105 +9,81 @@ namespace FileExplorer
 {
     public class Panel
     {
+        #region variables
         private string currentLocation;
+        private string targetLocation;
         private string currentlySelectedItemName;
-        private bool isFile;
         private ListView viewPanel;
         private Label fileName;
         private TextBox location;
         Stack<string> previousLocations;
         Stack<string> forwardLocations;
-        private static ImageList iconList = new ImageList();
-        public string CurrentLocation
-        {
-            get { return currentLocation; }
-            set { currentLocation = value; }
-        }
-        public string CurrentlySelectedItemName
-        {
-            get { return currentlySelectedItemName; }
-            set { currentlySelectedItemName = value; }
-        }
-        public bool IsFile
-        {
-            get { return isFile; }
-            set { isFile = value;  }
-        }
-        public ListView ViewPanel 
-        { 
-            get { return viewPanel; }
-            set { viewPanel = value; }
-        }
-        public Label FileName
-        {
-            get { return fileName; }
-            set { fileName = value; }
-        }
-        public TextBox Location
-        {
-            get { return location; }
-            set { location = value; }
-        }
+        private static ImageList iconList;
+        #endregion
+        #region properties
         static public ImageList IconList
         {
-            get { return iconList; }
+            private get { return iconList; }
             set 
             { 
                 if(value.Tag.Equals("iconList"))
                     iconList = value; 
             }
         }
-        public Panel()
+        #endregion
+        #region constructors
+        static Panel()
         {
-            this.currentLocation = "";
+            iconList = new ImageList();
+        }
+        public Panel(string currentLocation, ListView viewPanel, Label fileName, TextBox location)
+        {
+            this.currentLocation = currentLocation;
+            this.targetLocation = "";
             this.currentlySelectedItemName = "";
-            this.isFile = false;
-            this.viewPanel = new ListView();
-            this.fileName = new Label();
-            this.location = new TextBox();
+            this.viewPanel = viewPanel;
+            this.fileName = fileName;
+            this.location = location;
             this.previousLocations = new Stack<string>();
             this.forwardLocations = new Stack<string>();
+            location.Text = currentLocation;
         }
+        #endregion
+        #region methods
         public void LoadFilesAndDirectories()
         {
             DirectoryInfo fileList;
-            string tempFilePath = "";
             FileAttributes fileAttr;
             try
             {
-
-                if (IsFile)
+                if (targetLocation != "")
                 {
-                    tempFilePath = CurrentLocation + "\\" + CurrentlySelectedItemName;
-                    FileInfo fileDetails = new FileInfo(tempFilePath);
-                    FileName.Text = fileDetails.Extension;
-                    fileAttr = File.GetAttributes(tempFilePath);
+                    fileAttr = File.GetAttributes(targetLocation);
+                    currentLocation = targetLocation;
                 }
                 else
                 {
-                    fileAttr = File.GetAttributes(CurrentLocation);
+                    fileAttr = File.GetAttributes(currentLocation);
+                    targetLocation = currentLocation;
                 }
                 if ((fileAttr & FileAttributes.Directory) == FileAttributes.Directory)
                 {
-                    fileList = new DirectoryInfo(CurrentLocation);
+                    fileList = new DirectoryInfo(targetLocation);
                     FileInfo[] files = fileList.GetFiles();
                     DirectoryInfo[] dirs = fileList.GetDirectories();
 
-                    ViewPanel.Items.Clear();
-                    ViewPanel.LargeImageList = iconList;
+                    viewPanel.Items.Clear();
+                    viewPanel.LargeImageList = IconList;
 
                     foreach (var file in files)
                     {
-                        ViewPanel.Items.Add(file.Name, 0);
+                        viewPanel.Items.Add(file.Name, 0);
                     }
                     foreach (var dir in dirs)
                     {
-                        ViewPanel.Items.Add(dir.Name, 1);
+                        viewPanel.Items.Add(dir.Name, 1);
                     }
-                }
-                else
-                {
-                    FileName.Text = this.CurrentlySelectedItemName;
+                    location.Text = currentLocation;
                 }
             }
             catch (Exception LFADError)
@@ -118,9 +94,9 @@ namespace FileExplorer
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Exclamation
                  );
-                List<string> pathSplit = CurrentLocation.Split('\\').ToList();
+                List<string> pathSplit = currentLocation.Split('\\').ToList();
                 pathSplit.RemoveAt(pathSplit.Count - 1);
-                CurrentLocation = string.Join("\\", pathSplit);
+                currentLocation = string.Join("\\", pathSplit);
 
             }
         }
@@ -129,22 +105,20 @@ namespace FileExplorer
             string tempMainDir;
             try
             {
-                CurrentlySelectedItemName = e.Item.Text;
-                FileName.Text = CurrentlySelectedItemName;
-                if (CurrentLocation.Equals("C:\\") ||
-                    CurrentLocation.Equals("D:\\"))
-                        CurrentLocation = CurrentLocation.Trim('\\');
-                tempMainDir = CurrentLocation + "\\";
-                FileAttributes fileAttr = File.GetAttributes(CurrentLocation + "\\" + CurrentlySelectedItemName);
+                currentlySelectedItemName = e.Item.Text;
+                fileName.Text = currentlySelectedItemName;
+                if (currentLocation.Equals("C:\\") ||
+                    currentLocation.Equals("D:\\"))
+                        currentLocation = currentLocation.Trim('\\');
+                tempMainDir = currentLocation + "\\";
+                FileAttributes fileAttr = File.GetAttributes(currentLocation + "\\" + currentlySelectedItemName);
                 if ((fileAttr & FileAttributes.Directory) == FileAttributes.Directory)
                 {
-                    IsFile = false;
-                    Location.Text = CurrentLocation + "\\" + CurrentlySelectedItemName;
+                    targetLocation = currentLocation + "\\" + currentlySelectedItemName;
                 }
                 else
                 {
-                    IsFile = true;
-                    Location.Text = tempMainDir;
+                    location.Text = tempMainDir;
                 }
             }
             catch (Exception ISCerror)
@@ -155,29 +129,26 @@ namespace FileExplorer
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Exclamation
                 );
-                List<string> pathSplit = CurrentLocation.Split('\\').ToList();
+                List<string> pathSplit = currentLocation.Split('\\').ToList();
                 pathSplit.RemoveAt(pathSplit.Count - 1);
-                CurrentLocation = string.Join("\\", pathSplit);
+                currentLocation = string.Join("\\", pathSplit);
             }
 
         }
         public void OpenButtonAction()
         {
             if(forwardLocations.Count != 0) forwardLocations.Clear();
-            previousLocations.Push(CurrentLocation);
-            CurrentLocation = Location.Text;
+            previousLocations.Push(currentLocation);
             LoadFilesAndDirectories();
-            IsFile = false;
         }
         public void GoBack()
         {
             if(previousLocations.Count != 0)
             {
-                forwardLocations.Push(CurrentLocation);
-                CurrentLocation = previousLocations.Pop();
-                if (CurrentLocation == "C:" || CurrentLocation == "D:") CurrentLocation = CurrentLocation + "\\";
-                Location.Text = CurrentLocation;
-                IsFile = false;
+                forwardLocations.Push(currentLocation);
+                currentLocation = previousLocations.Pop();
+                if (currentLocation == "C:" || currentLocation == "D:") currentLocation = currentLocation + "\\";
+                targetLocation = currentLocation;
                 LoadFilesAndDirectories();
             }
         }
@@ -185,13 +156,13 @@ namespace FileExplorer
         {
             if(forwardLocations.Count != 0)
             {
-                previousLocations.Push(CurrentLocation);
-                CurrentLocation = forwardLocations.Pop();
-                if (CurrentLocation == "C:" || CurrentLocation == "D:") CurrentLocation = CurrentLocation + "\\";
-                Location.Text = CurrentLocation;
-                IsFile = false;
+                previousLocations.Push(currentLocation);
+                currentLocation = forwardLocations.Pop();
+                if (currentLocation == "C:" || currentLocation == "D:") currentLocation = currentLocation + "\\";
+                targetLocation = currentLocation;
                 LoadFilesAndDirectories();
             }
         }
+        #endregion
     }
 }
