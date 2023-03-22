@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -67,13 +68,16 @@ namespace FileExplorer
             FileAttributes fileAttr;
             try
             {
+                viewPanel.LargeImageList = IconList;
+                viewPanel.ShowItemToolTips = true;
+
                 if (targetLocation != "")
                 {
                     fileAttr = File.GetAttributes(targetLocation);
                     currentLocation = targetLocation;
                     if (currentLocation.Equals("C:") ||
-                    currentLocation.Equals("D:"))
-                        currentLocation = currentLocation + "\\";
+                        currentLocation.Equals("D:"))
+                            currentLocation = currentLocation + "\\";
                 }
                 else
                 {
@@ -85,19 +89,25 @@ namespace FileExplorer
                     fileList = new DirectoryInfo(targetLocation);
                     FileInfo[] files = fileList.GetFiles();
                     DirectoryInfo[] dirs = fileList.GetDirectories();
+                    
 
                     viewPanel.Items.Clear();
-                    viewPanel.LargeImageList = IconList;
-
+                    
                     foreach (var file in files)
                     {
+                        if (file.Attributes.HasFlag(FileAttributes.Hidden) ||
+                            file.Attributes.HasFlag(FileAttributes.System)) continue;
                         viewPanel.Items.Add(file.Name, 0);
                     }
                     foreach (var dir in dirs)
                     {
+                        if (dir.Attributes.HasFlag(FileAttributes.Hidden) ||
+                            dir.Attributes.HasFlag(FileAttributes.System)) continue;
                         viewPanel.Items.Add(dir.Name, 1);
                     }
+                    
                     location.Text = currentLocation;
+                    
                 }
             }
             catch (Exception LFADError)
