@@ -4,26 +4,17 @@ namespace FileExplorer
 {
     public partial class Form1 : Form
     {
-        Panel leftPanel = new Panel();
-        Panel rightPanel = new Panel();
+        Panel leftPanel;
+        Panel rightPanel;
         
         public Form1()
         {
             InitializeComponent();
-            InitializePanel(leftPanel, "C:\\", leftView, leftFile, leftLocation);
-            InitializePanel(rightPanel, "D:\\", rightView, rightFile, rightLocation);
+            leftPanel = new Panel("C:\\", leftView, leftFile, leftLocation);
+            rightPanel = new Panel("D:\\", rightView, rightFile, rightLocation);
             Panel.IconList = iconList;
-            leftLocation.Text = leftPanel.CurrentLocation;
-            rightLocation.Text = rightPanel.CurrentLocation;
             leftPanel.LoadFilesAndDirectories();
             rightPanel.LoadFilesAndDirectories();
-        }
-        private void InitializePanel(Panel panel, string currentLocation, ListView view, Label label, TextBox location)
-        {
-            panel.CurrentLocation = currentLocation;
-            panel.ViewPanel = view;
-            panel.FileName = label;
-            panel.Location = location;
         }
         private void leftBack_Click(object sender, EventArgs e)
         {
@@ -43,11 +34,13 @@ namespace FileExplorer
         }
         private void leftOpen_Click(object sender, EventArgs e)
         {
+            leftPanel.FromTextBox = true;
             leftPanel.OpenButtonAction();
          }
 
         private void rightOpen_Click(object sender, EventArgs e)
         {
+            rightPanel.FromTextBox = true;
             rightPanel.OpenButtonAction();
         }
        
@@ -67,6 +60,18 @@ namespace FileExplorer
         private void rightView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             rightPanel.OpenButtonAction();
+        }
+
+        private void moveToRight_Click(object sender, EventArgs e)
+        {
+            leftPanel.MoveToOtherPanel(rightPanel.CurrentLocation);
+            rightPanel.LoadFilesAndDirectories();
+        }
+
+        private void moveToLeft_Click(object sender, EventArgs e)
+        {
+            rightPanel.MoveToOtherPanel(leftPanel.CurrentLocation);
+            leftPanel.LoadFilesAndDirectories();
         }
     }
 }

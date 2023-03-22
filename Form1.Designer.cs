@@ -49,6 +49,10 @@
             this.leftFile = new System.Windows.Forms.Label();
             this.rightFile = new System.Windows.Forms.Label();
             this.iconList = new System.Windows.Forms.ImageList(this.components);
+            this.TipForMovingFiles = new System.Windows.Forms.ToolTip(this.components);
+            this.TipForOpen = new System.Windows.Forms.ToolTip(this.components);
+            this.TipForLocationChanges = new System.Windows.Forms.ToolTip(this.components);
+            this.TipForNames = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // leftBack
@@ -59,6 +63,7 @@
             this.leftBack.Size = new System.Drawing.Size(30, 23);
             this.leftBack.TabIndex = 0;
             this.leftBack.Text = "<-";
+            this.TipForLocationChanges.SetToolTip(this.leftBack, "Back");
             this.leftBack.UseVisualStyleBackColor = true;
             this.leftBack.Click += new System.EventHandler(this.leftBack_Click);
             // 
@@ -70,6 +75,7 @@
             this.leftForward.Size = new System.Drawing.Size(30, 23);
             this.leftForward.TabIndex = 1;
             this.leftForward.Text = "->";
+            this.TipForLocationChanges.SetToolTip(this.leftForward, "Next");
             this.leftForward.UseVisualStyleBackColor = true;
             this.leftForward.Click += new System.EventHandler(this.leftForward_Click);
             // 
@@ -88,6 +94,7 @@
             this.leftOpen.Size = new System.Drawing.Size(50, 23);
             this.leftOpen.TabIndex = 3;
             this.leftOpen.Text = "Open";
+            this.TipForOpen.SetToolTip(this.leftOpen, "Move to provided path");
             this.leftOpen.UseVisualStyleBackColor = true;
             this.leftOpen.Click += new System.EventHandler(this.leftOpen_Click);
             // 
@@ -128,6 +135,7 @@
             this.rightBack.Size = new System.Drawing.Size(30, 23);
             this.rightBack.TabIndex = 7;
             this.rightBack.Text = "<-";
+            this.TipForLocationChanges.SetToolTip(this.rightBack, "Back");
             this.rightBack.UseVisualStyleBackColor = true;
             this.rightBack.Click += new System.EventHandler(this.rightBack_Click);
             // 
@@ -138,6 +146,7 @@
             this.rightForward.Size = new System.Drawing.Size(30, 23);
             this.rightForward.TabIndex = 8;
             this.rightForward.Text = "->";
+            this.TipForLocationChanges.SetToolTip(this.rightForward, "Next");
             this.rightForward.UseVisualStyleBackColor = true;
             this.rightForward.Click += new System.EventHandler(this.rightForward_Click);
             // 
@@ -165,6 +174,7 @@
             this.rightOpen.Size = new System.Drawing.Size(50, 23);
             this.rightOpen.TabIndex = 11;
             this.rightOpen.Text = "Open";
+            this.TipForOpen.SetToolTip(this.rightOpen, "Move to provided path");
             this.rightOpen.UseVisualStyleBackColor = true;
             this.rightOpen.Click += new System.EventHandler(this.rightOpen_Click);
             // 
@@ -176,7 +186,9 @@
             this.moveToRight.Size = new System.Drawing.Size(44, 25);
             this.moveToRight.TabIndex = 12;
             this.moveToRight.Text = ">>";
+            this.TipForMovingFiles.SetToolTip(this.moveToRight, "Move selected file from the left panel to the right one");
             this.moveToRight.UseVisualStyleBackColor = true;
+            this.moveToRight.Click += new System.EventHandler(this.moveToRight_Click);
             // 
             // moveToLeft
             // 
@@ -186,7 +198,9 @@
             this.moveToLeft.Size = new System.Drawing.Size(44, 25);
             this.moveToLeft.TabIndex = 13;
             this.moveToLeft.Text = "<<";
+            this.TipForMovingFiles.SetToolTip(this.moveToLeft, "Move selected file from the right panel to the left one");
             this.moveToLeft.UseVisualStyleBackColor = true;
+            this.moveToLeft.Click += new System.EventHandler(this.moveToLeft_Click);
             // 
             // label3
             // 
@@ -196,6 +210,7 @@
             this.label3.Size = new System.Drawing.Size(28, 15);
             this.label3.TabIndex = 14;
             this.label3.Text = "File:";
+            this.TipForNames.SetToolTip(this.label3, "Name of the selected file");
             // 
             // label4
             // 
@@ -205,6 +220,7 @@
             this.label4.Size = new System.Drawing.Size(28, 15);
             this.label4.TabIndex = 15;
             this.label4.Text = "File:";
+            this.TipForNames.SetToolTip(this.label4, "Name of the selected file");
             // 
             // leftFile
             // 
@@ -286,5 +302,9 @@
         private Label leftFile;
         private Label rightFile;
         public ImageList iconList;
+        private ToolTip TipForMovingFiles;
+        private ToolTip TipForOpen;
+        private ToolTip TipForLocationChanges;
+        private ToolTip TipForNames;
     }
 }
