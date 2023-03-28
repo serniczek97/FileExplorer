@@ -10,8 +10,8 @@ namespace FileExplorer
         public Form1()
         {
             InitializeComponent();
-            leftPanel = new Panel("C:\\", leftView, leftFile, leftLocation);
-            rightPanel = new Panel("D:\\", rightView, rightFile, rightLocation);
+            leftPanel = new Panel("C:\\", leftView, leftFile, leftPath);
+            rightPanel = new Panel("D:\\", rightView, rightFile, rightPath);
             Panel.IconList = iconList;
             leftPanel.LoadFilesAndDirectories();
             rightPanel.LoadFilesAndDirectories();
@@ -34,13 +34,13 @@ namespace FileExplorer
         }
         private void leftOpen_Click(object sender, EventArgs e)
         {
-            leftPanel.FromTextBox = true;
+            leftPanel.FromComboBox = true;
             leftPanel.OpenButtonAction();
          }
 
         private void rightOpen_Click(object sender, EventArgs e)
         {
-            rightPanel.FromTextBox = true;
+            rightPanel.FromComboBox = true;
             rightPanel.OpenButtonAction();
         }
        
@@ -72,6 +72,31 @@ namespace FileExplorer
         {
             rightPanel.MoveToOtherPanel(leftPanel.CurrentLocation);
             leftPanel.LoadFilesAndDirectories();
+        }
+
+        private void leftPath_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            leftPanel.PathChanged();
+        }
+
+        private void rightPath_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            rightPanel.PathChanged();
+        }
+
+        private void leftView_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode.Equals(Keys.Enter))
+            {
+                leftPanel.OpenButtonAction();
+            }
+        }
+        private void rightView_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode.Equals(Keys.Enter))
+            {
+                rightPanel.OpenButtonAction();
+            }
         }
     }
 }

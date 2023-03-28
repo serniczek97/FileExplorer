@@ -32,7 +32,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.leftBack = new System.Windows.Forms.Button();
             this.leftForward = new System.Windows.Forms.Button();
-            this.leftLocation = new System.Windows.Forms.TextBox();
             this.leftOpen = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.leftView = new System.Windows.Forms.ListView();
@@ -40,7 +39,6 @@
             this.rightBack = new System.Windows.Forms.Button();
             this.rightForward = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.rightLocation = new System.Windows.Forms.TextBox();
             this.rightOpen = new System.Windows.Forms.Button();
             this.moveToRight = new System.Windows.Forms.Button();
             this.moveToLeft = new System.Windows.Forms.Button();
@@ -53,6 +51,8 @@
             this.TipForOpen = new System.Windows.Forms.ToolTip(this.components);
             this.TipForLocationChanges = new System.Windows.Forms.ToolTip(this.components);
             this.TipForNames = new System.Windows.Forms.ToolTip(this.components);
+            this.leftPath = new System.Windows.Forms.ComboBox();
+            this.rightPath = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // leftBack
@@ -78,13 +78,6 @@
             this.TipForLocationChanges.SetToolTip(this.leftForward, "Next");
             this.leftForward.UseVisualStyleBackColor = true;
             this.leftForward.Click += new System.EventHandler(this.leftForward_Click);
-            // 
-            // leftLocation
-            // 
-            this.leftLocation.Location = new System.Drawing.Point(124, 11);
-            this.leftLocation.Name = "leftLocation";
-            this.leftLocation.Size = new System.Drawing.Size(192, 23);
-            this.leftLocation.TabIndex = 2;
             // 
             // leftOpen
             // 
@@ -115,6 +108,7 @@
             this.leftView.TabIndex = 5;
             this.leftView.UseCompatibleStateImageBehavior = false;
             this.leftView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.leftView_ItemSelectionChanged);
+            this.leftView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.leftView_KeyUp);
             this.leftView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.leftView_MouseDoubleClick);
             // 
             // rightView
@@ -125,6 +119,7 @@
             this.rightView.TabIndex = 6;
             this.rightView.UseCompatibleStateImageBehavior = false;
             this.rightView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.rightView_ItemSelectionChanged);
+            this.rightView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.rightView_KeyUp);
             this.rightView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.rightView_MouseDoubleClick);
             // 
             // rightBack
@@ -158,13 +153,6 @@
             this.label2.Size = new System.Drawing.Size(34, 15);
             this.label2.TabIndex = 9;
             this.label2.Text = "Path:";
-            // 
-            // rightLocation
-            // 
-            this.rightLocation.Location = new System.Drawing.Point(540, 11);
-            this.rightLocation.Name = "rightLocation";
-            this.rightLocation.Size = new System.Drawing.Size(192, 23);
-            this.rightLocation.TabIndex = 10;
             // 
             // rightOpen
             // 
@@ -249,12 +237,32 @@
             this.iconList.Images.SetKeyName(0, "File_icon_64.png");
             this.iconList.Images.SetKeyName(1, "Folder_icon_64.png");
             // 
+            // leftPath
+            // 
+            this.leftPath.FormattingEnabled = true;
+            this.leftPath.Location = new System.Drawing.Point(124, 11);
+            this.leftPath.Name = "leftPath";
+            this.leftPath.Size = new System.Drawing.Size(192, 23);
+            this.leftPath.TabIndex = 18;
+            this.leftPath.SelectedIndexChanged += new System.EventHandler(this.leftPath_SelectedIndexChanged);
+            // 
+            // rightPath
+            // 
+            this.rightPath.FormattingEnabled = true;
+            this.rightPath.Location = new System.Drawing.Point(540, 12);
+            this.rightPath.Name = "rightPath";
+            this.rightPath.Size = new System.Drawing.Size(192, 23);
+            this.rightPath.TabIndex = 19;
+            this.rightPath.SelectedIndexChanged += new System.EventHandler(this.rightPath_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(800, 451);
+            this.Controls.Add(this.rightPath);
+            this.Controls.Add(this.leftPath);
             this.Controls.Add(this.rightFile);
             this.Controls.Add(this.leftFile);
             this.Controls.Add(this.label4);
@@ -262,7 +270,6 @@
             this.Controls.Add(this.moveToLeft);
             this.Controls.Add(this.moveToRight);
             this.Controls.Add(this.rightOpen);
-            this.Controls.Add(this.rightLocation);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.rightForward);
             this.Controls.Add(this.rightBack);
@@ -270,7 +277,6 @@
             this.Controls.Add(this.leftView);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.leftOpen);
-            this.Controls.Add(this.leftLocation);
             this.Controls.Add(this.leftForward);
             this.Controls.Add(this.leftBack);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -285,7 +291,6 @@
 
         private Button leftBack;
         private Button leftForward;
-        private TextBox leftLocation;
         private Button leftOpen;
         private Label label1;
         private ListView leftView;
@@ -293,7 +298,6 @@
         private Button rightBack;
         private Button rightForward;
         private Label label2;
-        private TextBox rightLocation;
         private Button rightOpen;
         private Button moveToRight;
         private Button moveToLeft;
@@ -306,5 +310,7 @@
         private ToolTip TipForOpen;
         private ToolTip TipForLocationChanges;
         private ToolTip TipForNames;
+        private ComboBox leftPath;
+        private ComboBox rightPath;
     }
 }

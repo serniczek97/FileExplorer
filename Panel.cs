@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.Logging;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -14,12 +15,14 @@ namespace FileExplorer
         private string currentLocation;
         private string targetLocation;
         private string currentlySelectedItemName;
-        private bool fromTextBox;
+        private bool fromComboBox;
+        private bool isFile;
         private ListView viewPanel;
         private Label fileName;
-        private TextBox location;
-        Stack<string> previousLocations;
-        Stack<string> forwardLocations;
+        private ComboBox path;
+        private Stack<string> previousLocations;
+        private Stack<string> forwardLocations;
+        private DriveInfo[] allDrives;
         private static ImageList iconList;
         #endregion
         #region properties
@@ -27,10 +30,10 @@ namespace FileExplorer
         {
             get { return currentLocation; }
         }
-        public bool FromTextBox
+        public bool FromComboBox
         {
-            get { return fromTextBox; }
-            set { fromTextBox = value; }
+            get { return fromComboBox; }
+            set { fromComboBox = value; }
         }
         static public ImageList IconList
         {
@@ -47,21 +50,32 @@ namespace FileExplorer
         {
             iconList = new ImageList();
         }
-        public Panel(string currentLocation, ListView viewPanel, Label fileName, TextBox location)
+        public Panel(string currentLocation, ListView viewPanel, Label fileName, ComboBox path)
         {
             this.currentLocation = currentLocation;
             this.targetLocation = "";
             this.currentlySelectedItemName = "";
-            this.fromTextBox = false;
+            this.fromComboBox = false;
+            this.isFile = false;
             this.viewPanel = viewPanel;
             this.fileName = fileName;
-            this.location = location;
+            this.path = path;
             this.previousLocations = new Stack<string>();
             this.forwardLocations = new Stack<string>();
-            location.Text = currentLocation;
+            this.allDrives = DriveInfo.GetDrives();
+            path.Text = currentLocation;
+            PartitionsLetters();
         }
         #endregion
         #region methods
+        private void PartitionsLetters()
+        {
+            foreach(DriveInfo drive in allDrives)
+            {
+                if(drive.DriveType == DriveType.Fixed)
+                    path.Items.Add(drive.Name);
+            }
+        }
         public void LoadFilesAndDirectories()
         {
             DirectoryInfo fileList;
@@ -75,9 +89,7 @@ namespace FileExplorer
                 {
                     fileAttr = File.GetAttributes(targetLocation);
                     currentLocation = targetLocation;
-                    if (currentLocation.Equals("C:") ||
-                        currentLocation.Equals("D:"))
-                            currentLocation = currentLocation + "\\";
+                    AddSlashes();
                 }
                 else
                 {
@@ -94,13 +106,13 @@ namespace FileExplorer
 
                     viewPanel.Items.Clear();
                     
-                    foreach (var file in files)
+                    foreach (FileInfo file in files)
                     {
                         if (file.Attributes.HasFlag(FileAttributes.Hidden) ||
                             file.Attributes.HasFlag(FileAttributes.System)) continue;
                         viewPanel.Items.Add(file.Name, 0);
                     }
-                    foreach (var dir in dirs)
+                    foreach (DirectoryInfo dir in dirs)
                     {
                         if (dir.Attributes.HasFlag(FileAttributes.Hidden) ||
                             dir.Attributes.HasFlag(FileAttributes.System)) continue;
@@ -119,10 +131,11 @@ namespace FileExplorer
                         {
                             dirInfo = dirs.First(dir => dir.Name.Equals(viewPanel.Items[i].Text));
                             viewPanel.Items[i].ToolTipText = "Type: Directory \n" +
-                                                             "Content: " + dirInfo.CreationTime + "\n";
+                                                             "Created: " + dirInfo.CreationTime;
                         }
                     }
-                    location.Text = currentLocation;
+                    path.Text = currentLocation;
+                    
                     string ChangeSizeFormat(long size)
                     {
                         decimal s = size;
@@ -157,18 +170,19 @@ namespace FileExplorer
             {
                 currentlySelectedItemName = e.Item.Text;
                 fileName.Text = currentlySelectedItemName;
-                if (currentLocation.Equals("C:\\") ||
-                    currentLocation.Equals("D:\\"))
-                        currentLocation = currentLocation.Trim('\\');
-                tempMainDir = currentLocation + "\\";
+                AddSlashes();
+                tempMainDir = currentLocation;
                 FileAttributes fileAttr = File.GetAttributes(currentLocation + "\\" + currentlySelectedItemName);
                 if ((fileAttr & FileAttributes.Directory) == FileAttributes.Directory)
                 {
+                    isFile = false;
+                    currentLocation = currentLocation.Trim('\\');
                     targetLocation = currentLocation + "\\" + currentlySelectedItemName;
                 }
                 else
                 {
-                    location.Text = tempMainDir;
+                    isFile = true;
+                    path.Text = tempMainDir;
                 }
             }
             catch (Exception ISCerror)
@@ -188,18 +202,19 @@ namespace FileExplorer
         public void OpenButtonAction()
         {
             if(forwardLocations.Count != 0) forwardLocations.Clear();
-            previousLocations.Push(currentLocation);
-            if (FromTextBox) targetLocation = location.Text;
+            if(!isFile) previousLocations.Push(currentLocation);
+            if (FromComboBox) targetLocation = path.Text;
             LoadFilesAndDirectories();
-            FromTextBox = false;
+            FromComboBox = false;
         }
         public void GoBack()
         {
-            if(previousLocations.Count != 0)
+            if(previousLocations.Count != 1)
             {
+                fileName.Text = "";
                 forwardLocations.Push(currentLocation);
                 currentLocation = previousLocations.Pop();
-                if (currentLocation == "C:" || currentLocation == "D:") currentLocation = currentLocation + "\\";
+                AddSlashes();
                 targetLocation = currentLocation;
                 LoadFilesAndDirectories();
             }
@@ -208,9 +223,10 @@ namespace FileExplorer
         {
             if(forwardLocations.Count != 0)
             {
+                fileName.Text = "";
                 previousLocations.Push(currentLocation);
                 currentLocation = forwardLocations.Pop();
-                if (currentLocation == "C:" || currentLocation == "D:") currentLocation = currentLocation + "\\";
+                AddSlashes();
                 targetLocation = currentLocation;
                 LoadFilesAndDirectories();
             }
@@ -242,6 +258,17 @@ namespace FileExplorer
                     MessageBoxIcon.Exclamation
                 );
             }
+        }
+        public void PathChanged()
+        {
+            targetLocation = path.Text;
+            previousLocations.Push(currentLocation);
+            LoadFilesAndDirectories();
+        }
+        private void AddSlashes()
+        {
+            if (allDrives.Any(drive => drive.Name.Trim('\\').Equals(currentLocation)))
+                currentLocation = currentLocation + "\\";
         }
         #endregion
     }
