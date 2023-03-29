@@ -254,6 +254,7 @@
             this.rightPath.Size = new System.Drawing.Size(192, 23);
             this.rightPath.TabIndex = 19;
             this.rightPath.SelectedIndexChanged += new System.EventHandler(this.rightPath_SelectedIndexChanged);
+            this.rightPath.KeyUp += new System.Windows.Forms.KeyEventHandler(this.rightPath_KeyUp);
             // 
             // Form1
             // 

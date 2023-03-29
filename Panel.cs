@@ -17,6 +17,7 @@ namespace FileExplorer
         private string currentlySelectedItemName;
         private bool fromComboBox;
         private bool isFile;
+        private bool userInput;
         private ListView viewPanel;
         private Label fileName;
         private ComboBox path;
@@ -34,6 +35,11 @@ namespace FileExplorer
         {
             get { return fromComboBox; }
             set { fromComboBox = value; }
+        }
+        public bool UserInput
+        {
+            get { return userInput; }
+            set { userInput = value; }
         }
         static public ImageList IconList
         {
@@ -57,6 +63,7 @@ namespace FileExplorer
             this.currentlySelectedItemName = "";
             this.fromComboBox = false;
             this.isFile = false;
+            this.userInput = true;
             this.viewPanel = viewPanel;
             this.fileName = fileName;
             this.path = path;
@@ -76,12 +83,13 @@ namespace FileExplorer
                     path.Items.Add(drive.Name);
             }
         }
-        public void LoadFilesAndDirectories()
+        async public void LoadFilesAndDirectories()
         {
             DirectoryInfo fileList;
             FileAttributes fileAttr;
             try
             {
+                fileName.Text = "--";
                 viewPanel.LargeImageList = IconList;
                 viewPanel.ShowItemToolTips = true;
 
@@ -130,12 +138,35 @@ namespace FileExplorer
                         else
                         {
                             dirInfo = dirs.First(dir => dir.Name.Equals(viewPanel.Items[i].Text));
-                            viewPanel.Items[i].ToolTipText = "Type: Directory \n" +
-                                                             "Created: " + dirInfo.CreationTime;
+                            long sizeInBytes = 0;
+                            bool noInfo = false;
+                            await Task.Run(() =>
+                            {
+                                try
+                                {
+                                    sizeInBytes = Directory.EnumerateFiles(dirInfo.FullName, "*", SearchOption.AllDirectories)
+                                                                            .Sum(fileInfo => new FileInfo(fileInfo).Length);
+                                } catch
+                                {
+                                    noInfo = true;
+                                }
+                                
+                            });
+                            if (noInfo)
+                            {
+                                viewPanel.Items[i].ToolTipText = "Type: Directory \n" +
+                                                             "Created: " + dirInfo.CreationTime + "\n" +
+                                                             "Size unable to calculate. Not enough permissions!";
+                            }
+                            else
+                            {
+                                viewPanel.Items[i].ToolTipText = "Type: Directory \n" +
+                                                             "Created: " + dirInfo.CreationTime + "\n" +
+                                                             "Size: " + ChangeSizeFormat(sizeInBytes);
+                            }
                         }
                     }
                     path.Text = currentLocation;
-                    
                     string ChangeSizeFormat(long size)
                     {
                         decimal s = size;
@@ -209,22 +240,23 @@ namespace FileExplorer
         }
         public void GoBack()
         {
-            if(previousLocations.Count != 1)
+            if(previousLocations.Count != 0)
             {
-                fileName.Text = "";
                 forwardLocations.Push(currentLocation);
                 currentLocation = previousLocations.Pop();
                 AddSlashes();
                 targetLocation = currentLocation;
                 LoadFilesAndDirectories();
-            }
+                UserInput = true;
+            }  
         }
         public void ReturnFromGoBack()
         {
             if(forwardLocations.Count != 0)
             {
-                fileName.Text = "";
-                previousLocations.Push(currentLocation);
+                string? peek; 
+                previousLocations.TryPeek(out peek);
+                if (currentLocation != peek) previousLocations.Push(currentLocation);
                 currentLocation = forwardLocations.Pop();
                 AddSlashes();
                 targetLocation = currentLocation;
@@ -261,9 +293,14 @@ namespace FileExplorer
         }
         public void PathChanged()
         {
-            targetLocation = path.Text;
-            previousLocations.Push(currentLocation);
-            LoadFilesAndDirectories();
+            if (UserInput)
+            {
+                targetLocation = path.Text;
+                string peek = previousLocations.Count == 0 ? "" : previousLocations.Peek();
+                if (currentLocation != peek) previousLocations.Push(currentLocation);
+                LoadFilesAndDirectories();
+            }
+            else UserInput = true;
         }
         private void AddSlashes()
         {
