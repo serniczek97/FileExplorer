@@ -116,5 +116,24 @@ namespace FileExplorer
                 default: break;
             }
         }
+        private void leftPath_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                    leftPanel.FromComboBox = true;
+                    leftPanel.OpenButtonAction();
+                    break;
+                default: break;
+            }
+        }
+        private void leftView_ItemMouseHover(object sender, ListViewItemMouseHoverEventArgs e)
+        {
+            leftPanel.ItemToolTip(e);
+        }
+        private void rightView_ItemMouseHover(object sender, ListViewItemMouseHoverEventArgs e)
+        {
+            rightPanel.ItemToolTip(e);
+        }
     }
 }
