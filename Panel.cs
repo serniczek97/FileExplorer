@@ -1,11 +1,7 @@
-﻿using Microsoft.VisualBasic.Logging;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System;
+using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FileExplorer
 {
@@ -18,13 +14,15 @@ namespace FileExplorer
         private bool fromComboBox;
         private bool isFile;
         private bool userInput;
+        private bool reCalcSize;
         private ListView viewPanel;
         private Label fileName;
         private ComboBox path;
         private Stack<string> previousLocations;
         private Stack<string> forwardLocations;
-        private DriveInfo[] allDrives;
+        private static DriveInfo[] allDrives;
         private static ImageList iconList;
+        private static ConcurrentDictionary<string, long> dirSizes;
         #endregion
         #region properties
         public string CurrentLocation
@@ -54,7 +52,10 @@ namespace FileExplorer
         #region constructors
         static Panel()
         {
+            allDrives = DriveInfo.GetDrives();
             iconList = new ImageList();
+            dirSizes = new ConcurrentDictionary<string, long>();
+            
         }
         public Panel(string currentLocation, ListView viewPanel, Label fileName, ComboBox path)
         {
@@ -64,12 +65,12 @@ namespace FileExplorer
             this.fromComboBox = false;
             this.isFile = false;
             this.userInput = true;
+            this.reCalcSize = false;
             this.viewPanel = viewPanel;
             this.fileName = fileName;
             this.path = path;
             this.previousLocations = new Stack<string>();
             this.forwardLocations = new Stack<string>();
-            this.allDrives = DriveInfo.GetDrives();
             path.Text = currentLocation;
             PartitionsLetters();
         }
@@ -83,7 +84,7 @@ namespace FileExplorer
                     path.Items.Add(drive.Name);
             }
         }
-        async public void LoadFilesAndDirectories()
+        public void LoadFilesAndDirectories()
         {
             DirectoryInfo fileList;
             FileAttributes fileAttr;
@@ -109,8 +110,7 @@ namespace FileExplorer
                     fileList = new DirectoryInfo(targetLocation);
                     FileInfo[] files = fileList.GetFiles();
                     DirectoryInfo[] dirs = fileList.GetDirectories();
-                    DirectoryInfo dirInfo;
-                    FileInfo? fileInfo;
+                    
 
                     viewPanel.Items.Clear();
                     
@@ -126,58 +126,7 @@ namespace FileExplorer
                             dir.Attributes.HasFlag(FileAttributes.System)) continue;
                         viewPanel.Items.Add(dir.Name, 1);
                     }
-                    for (int i = 0; i < viewPanel.Items.Count; i++)
-                    {
-                        fileInfo = files.FirstOrDefault(file => file.Name.Equals(viewPanel.Items[i].Text));
-                        if (fileInfo != null)
-                        {
-                            viewPanel.Items[i].ToolTipText = "Type: " + fileInfo.Extension + "\n" +
-                                                          "Created: " + fileInfo.CreationTimeUtc + "\n" +
-                                                          "Size: " + ChangeSizeFormat(fileInfo.Length);
-                        }
-                        else
-                        {
-                            dirInfo = dirs.First(dir => dir.Name.Equals(viewPanel.Items[i].Text));
-                            long sizeInBytes = 0;
-                            bool noInfo = false;
-                            await Task.Run(() =>
-                            {
-                                try
-                                {
-                                    sizeInBytes = Directory.EnumerateFiles(dirInfo.FullName, "*", SearchOption.AllDirectories)
-                                                                            .Sum(fileInfo => new FileInfo(fileInfo).Length);
-                                } catch
-                                {
-                                    noInfo = true;
-                                }
-                                
-                            });
-                            if (noInfo)
-                            {
-                                viewPanel.Items[i].ToolTipText = "Type: Directory \n" +
-                                                             "Created: " + dirInfo.CreationTime + "\n" +
-                                                             "Size unable to calculate. Not enough permissions!";
-                            }
-                            else
-                            {
-                                viewPanel.Items[i].ToolTipText = "Type: Directory \n" +
-                                                             "Created: " + dirInfo.CreationTime + "\n" +
-                                                             "Size: " + ChangeSizeFormat(sizeInBytes);
-                            }
-                        }
-                    }
                     path.Text = currentLocation;
-                    string ChangeSizeFormat(long size)
-                    {
-                        decimal s = size;
-                        if (s > 1024) s /= 1024;
-                        else return s.ToString("0") + "B";
-                        if(s > 1024) s /= 1024;
-                        else return s.ToString("0") + "KB";
-                        if (s > 1024) s /= 1024;
-                        else return s.ToString("0") + "MB";
-                        return s.ToString("0.00") + "GB";
-                    }
                 }
             }
             catch (Exception LFADError)
@@ -193,6 +142,72 @@ namespace FileExplorer
                 currentLocation = string.Join("\\", pathSplit);
 
             }
+        }
+        public async void ItemToolTip(ListViewItemMouseHoverEventArgs e)
+        {
+            FileInfo fileInfo;
+            DirectoryInfo dirInfo;
+            FileAttributes fileAttr;
+            long sizeInBytes;
+            string pathToFile = currentLocation + "\\" + e.Item.Text;
+            fileAttr = File.GetAttributes(pathToFile);
+            if ((fileAttr & FileAttributes.Directory) == FileAttributes.Directory)
+            {
+                dirInfo = new DirectoryInfo(pathToFile);
+                bool noInfo = false;
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        if (!dirSizes.ContainsKey(dirInfo.FullName) || reCalcSize)
+                        {
+                            sizeInBytes = Directory.EnumerateFiles(dirInfo.FullName, "*", SearchOption.AllDirectories)
+                                                                .Sum(fileInfo => new FileInfo(fileInfo).Length);
+                            if (!dirSizes.TryAdd(dirInfo.FullName, sizeInBytes))
+                                dirSizes.TryUpdate(dirInfo.FullName, sizeInBytes, dirSizes.GetValueOrDefault(dirInfo.FullName));
+                        }
+                    }
+                    catch
+                    {
+                        noInfo = true;
+                        if (!dirSizes.ContainsKey(dirInfo.FullName)) dirSizes.TryAdd(dirInfo.FullName, -1);
+                    }
+
+                });
+                if (noInfo || dirSizes.GetValueOrDefault(dirInfo.FullName) == -1)
+                {
+                    e.Item.ToolTipText = "Type: Directory \n" +
+                                         "Created: " + dirInfo.CreationTime + "\n" +
+                                         "Size unable to calculate. Not enough permissions!";
+                }
+                else
+                {
+                    dirSizes.TryGetValue(dirInfo.FullName, out sizeInBytes);
+                    e.Item.ToolTipText = "Type: Directory \n" +
+                                          "Created: " + dirInfo.CreationTimeUtc + "\n" +
+                                           "Size: " + ChangeSizeFormat(sizeInBytes);
+                }
+                noInfo = false;
+            }
+            else
+            {
+                fileInfo = new FileInfo(pathToFile);
+                e.Item.ToolTipText = "Type: " + fileInfo.Extension + "\n" +
+                                      "Created: " + fileInfo.CreationTimeUtc + "\n" +
+                                       "Size: " + ChangeSizeFormat(fileInfo.Length);
+            }
+            reCalcSize = false;
+        }
+        private string ChangeSizeFormat(long size)
+        {
+            decimal s = size;
+            if (s > 1024) s /= 1024;
+            else return s.ToString("0") + "B";
+            if (s > 1024) s /= 1024;
+            else return s.ToString("0") + "KB";
+            if (s > 1024) s /= 1024;
+            else return s.ToString("0") + "MB";
+            return s.ToString("0.00") + "GB";
         }
         public void ItemSelectionChanged(ListViewItemSelectionChangedEventArgs e)
         {
@@ -267,6 +282,8 @@ namespace FileExplorer
         {
             try
             {
+                DirectoryInfo targetInfo = new DirectoryInfo(target);
+                DirectoryInfo checkedFileInfo = new DirectoryInfo(currentLocation);
                 string checkedFile = currentLocation + "\\" + currentlySelectedItemName;
                 target = target + "\\" + currentlySelectedItemName;
                 FileAttributes fileAttr = File.GetAttributes(checkedFile);
@@ -279,6 +296,7 @@ namespace FileExplorer
                     File.Move(checkedFile, target);
                 }
                 targetLocation = "";
+                reCalcSize = true;
                 LoadFilesAndDirectories();
             }
             catch(Exception MTOPError)

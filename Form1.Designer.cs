@@ -107,6 +107,7 @@
             this.leftView.Size = new System.Drawing.Size(360, 368);
             this.leftView.TabIndex = 5;
             this.leftView.UseCompatibleStateImageBehavior = false;
+            this.leftView.ItemMouseHover += new System.Windows.Forms.ListViewItemMouseHoverEventHandler(this.leftView_ItemMouseHover);
             this.leftView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.leftView_ItemSelectionChanged);
             this.leftView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.leftView_KeyUp);
             this.leftView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.leftView_MouseDoubleClick);
@@ -118,6 +119,7 @@
             this.rightView.Size = new System.Drawing.Size(360, 368);
             this.rightView.TabIndex = 6;
             this.rightView.UseCompatibleStateImageBehavior = false;
+            this.rightView.ItemMouseHover += new System.Windows.Forms.ListViewItemMouseHoverEventHandler(this.rightView_ItemMouseHover);
             this.rightView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.rightView_ItemSelectionChanged);
             this.rightView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.rightView_KeyUp);
             this.rightView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.rightView_MouseDoubleClick);
@@ -245,6 +247,7 @@
             this.leftPath.Size = new System.Drawing.Size(192, 23);
             this.leftPath.TabIndex = 18;
             this.leftPath.SelectedIndexChanged += new System.EventHandler(this.leftPath_SelectedIndexChanged);
+            this.leftPath.KeyUp += new System.Windows.Forms.KeyEventHandler(this.leftPath_KeyUp);
             // 
             // rightPath
             // 
